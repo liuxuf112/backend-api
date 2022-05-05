@@ -5,7 +5,10 @@ const {
   businessSchema,
   insertNewBusiness,
   getAllBusinesses,
-  getBusinessById
+  getBusinessById,
+  deleteBusiness,
+  updateBusinessById
+
 } = require('../models/businesses')
 
 const router = Router()
@@ -50,18 +53,40 @@ router.get('/:id', async function (req, res, next) {
 /*
  * Route to replace data for a business.
  */
-router.patch('/:id', function (req, res, next) {
-  const id = req.params.id
-  res.status(200).send({})
+router.patch('/:id', async function (req, res, next) {
+  
+  if (validateAgainstSchema(req.body, businessSchema)) {
+    const update = await updateBusinessById(req.params.id, req.body)
+    if(update){
+      res.status(204).send()
+    }
+    else{
+      next()
+    }
+  }
+  else{
+    res.status(400).send({
+      err: "Request body is not a valid business"
+    })
+  }
+
 })
 
 /*
  * Route to delete a business.
  */
-router.delete('/:id', function (req, res, next) {
+router.delete('/:id', async function (req, res, next) {
   const id = req.params.id
-  res.status(204).send()
+  const deleteSuccessful = await deleteBusiness(id)
+  if(deleteSuccessful){
+    res.status(204).end()
+  }
+  else{
+    next()
+  }
 })
+
+
 
 
 

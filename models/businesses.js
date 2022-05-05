@@ -8,8 +8,7 @@ const { extractValidFields } = require('../lib/validation')
  */
 
 /*
-    1. change LodgingSchema to businessSchema
-
+    
 */
 const businessSchema = {
     ownerid: { required: true },
@@ -54,4 +53,40 @@ exports.getBusinessById = async function getBusinessById(id) {
         { $match: { _id: new ObjectId(id) } }
     ]).toArray()
     return businesses[0]
+}
+
+
+exports.deleteBusiness = async function deleteBusiness(id) {
+    const db = getDbInstance()
+    const collection = db.collection('businesses')
+    const result = await collection.deleteOne({
+        _id: new ObjectId(id)
+    })
+    return result.deletedCount > 0
+}
+
+
+exports.updateBusinessById = async function updateBusinessById(id, business){
+    const businessValues = {
+        ownerid: business.ownerid,
+        name: business.name,
+        address: business.address,
+        city: business.city,
+        state: business.state,
+        zip: business.zip,
+        phone: business.phone,
+        category: business.category,
+        subcategory: business.subcategory,
+        website: business.website,
+        email: business.email
+    }
+    const db = getDbInstance()
+    const collection = db.collection('businesses')
+    
+    const result = await collection.replaceOne(
+        { _id: new ObjectId(id) },
+        businessValues
+    )
+    
+    return result.matchedCount > 0
 }
